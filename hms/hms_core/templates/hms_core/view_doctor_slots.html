@@ -1,0 +1,43 @@
+{% extends 'hms_core/base.html' %}
+
+{% block title %}Book Slots with Dr. {{ doctor.get_full_name|default:doctor.username }}{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+        <h2>Dr. {{ doctor.get_full_name|default:doctor.username }}</h2>
+        <p style="color: var(--text-muted);">Specialty: {{ doctor.specialty|default:"General Medicine" }} | Email: {{ doctor.email }}</p>
+    </div>
+    <a href="{% url 'patient_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+<div class="glass-container">
+    <h3 class="section-title" style="margin-bottom: 2rem;">
+        Available Booking Slots
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alarm-clock"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/><path d="M6.38 18.7 4.4 20.7"/><path d="M17.62 18.7 19.6 20.7"/></svg>
+    </h3>
+    
+    {% if slots %}
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">Select an availability slot below. Double-booking and concurrent bookings are safely guarded via server transactions.</p>
+        <div class="slots-container">
+            {% for slot in slots %}
+                <div class="slot-card">
+                    <div>
+                        <div class="slot-date" style="color: var(--primary); font-weight: 600;">{{ slot.date|date:"l, F d, Y" }}</div>
+                        <div class="slot-time" style="font-size: 1.15rem; margin-top: 0.25rem;">{{ slot.start_time|time:"h:i A" }} - {{ slot.end_time|time:"h:i A" }}</div>
+                    </div>
+                    
+                    <a href="{% url 'book_slot' slot.id %}" class="btn btn-success btn-full" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                        Confirm Booking
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>Dr. {{ doctor.get_full_name|default:doctor.username }} does not have any active, future availability slots posted.</p>
+            <a href="{% url 'patient_dashboard' %}" class="btn btn-secondary">Browse other doctors</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

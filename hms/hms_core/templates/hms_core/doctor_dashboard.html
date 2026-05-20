@@ -1,0 +1,126 @@
+{% extends 'hms_core/base.html' %}
+
+{% block title %}Doctor Dashboard{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2>Welcome, Dr. {{ user.last_name|default:user.username }}!</h2>
+    <p style="color: var(--text-muted);">Manage your clinical availability slots and upcoming patient bookings.</p>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Main Left Column -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+        
+        <!-- Bookings/Appointments List -->
+        <div class="glass-container">
+            <h3 class="section-title">
+                Upcoming Appointments
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-days"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+            </h3>
+            
+            {% if appointments %}
+                <div class="appointment-list">
+                    {% for appt in appointments %}
+                        <div class="appointment-item">
+                            <div class="appointment-details">
+                                <h4>Patient: {{ appt.patient.get_full_name|default:appt.patient.username }}</h4>
+                                <p>Email: {{ appt.patient.email }}</p>
+                                {% if appt.doctor_calendar_event_id %}
+                                    <p style="font-size: 0.75rem; color: var(--secondary); margin-top: 0.3rem; display: flex; align-items: center; gap: 0.3rem;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                                        Synced with Google Calendar (ID: {{ appt.doctor_calendar_event_id|slice:":25" }}...)
+                                    </p>
+                                {% endif %}
+                            </div>
+                            <div class="appointment-datetime">
+                                <div class="date">{{ appt.slot.date|date:"M d, Y" }}</div>
+                                <div class="time">{{ appt.slot.start_time|time:"h:i A" }} - {{ appt.slot.end_time|time:"h:i A" }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No upcoming patient appointments scheduled yet.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Availability Slots List -->
+        <div class="glass-container">
+            <h3 class="section-title">
+                My Availability Slots
+                <a href="{% url 'create_slot_view' %}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">+ Create Slot</a>
+            </h3>
+            
+            {% if slots %}
+                <div class="slots-container">
+                    {% for slot in slots %}
+                        <div class="slot-card">
+                            <div>
+                                <div class="slot-date">{{ slot.date|date:"F d, Y" }}</div>
+                                <div class="slot-time">{{ slot.start_time|time:"h:i A" }} - {{ slot.end_time|time:"h:i A" }}</div>
+                            </div>
+                            <span class="slot-badge {% if slot.status == 'AVAILABLE' %}available{% else %}booked{% endif %}">
+                                {{ slot.status }}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>You haven't defined any availability slots yet.</p>
+                    <a href="{% url 'create_slot_view' %}" class="btn btn-secondary">Define availability now</a>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- Right Sidebar Column -->
+    <div style="display: flex; flex-direction: column; gap: 2rem;">
+        
+        <!-- Google Calendar Integration Widget -->
+        <div class="glass-container integration-card">
+            <h3>Google Calendar Sync</h3>
+            <p>Automatically sync your availability and scheduled patient appointments with your Google Calendar in real-time.</p>
+            
+            {% if has_google_token %}
+                <div class="integration-status">
+                    <span class="status-dot active"></span>
+                    <span style="color: var(--secondary);">CONNECTED ({{ is_mock_token|yesno:"MOCK,REAL" }} MODE)</span>
+                </div>
+                
+                <p style="font-size: 0.8rem; line-height: 1.4;">
+                    {% if is_mock_token %}
+                        You are currently in <strong>Mock Connect mode</strong>. Local event logs are saved to <code>google_calendar_log/</code> and logged to server console during bookings.
+                    {% else %}
+                        Your account is linked to your Google Calendar. Any appointments booked by patients will automatically populate events.
+                    {% endif %}
+                </p>
+                
+                <a href="{% url 'google_connect_init' %}" class="btn btn-secondary btn-full" style="font-size: 0.85rem;">Reconnect Calendar</a>
+            {% else %}
+                <div class="integration-status">
+                    <span class="status-dot inactive"></span>
+                    <span style="color: var(--danger);">DISCONNECTED</span>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    {% if google_configured %}
+                        <a href="{% url 'google_connect_init' %}" class="btn btn-primary btn-full">Connect Google Calendar</a>
+                    {% else %}
+                        <!-- Visual warning highlighting unconfigured Google variables, and offering the flawless Mock Connect button -->
+                        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 0.8rem; font-size: 0.8rem; color: #fbbf24; margin-bottom: 0.5rem;">
+                            <strong>Note:</strong> Google Client ID and Secrets are not configured in settings. You can use <strong>Mock Connect</strong> for local testing.
+                        </div>
+                        <a href="{% url 'google_connect_mock' %}" class="btn btn-success btn-full">Mock Connect Google Calendar</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

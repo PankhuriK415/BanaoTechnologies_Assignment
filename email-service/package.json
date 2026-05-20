@@ -1,0 +1,16 @@
+{
+  "name": "email-service",
+  "version": "1.0.0",
+  "description": "Serverless Email Service for Mini HMS",
+  "main": "handler.js",
+  "scripts": {
+    "start": "serverless offline start"
+  },
+  "dependencies": {
+    "nodemailer": "^6.9.13"
+  },
+  "devDependencies": {
+    "serverless": "^4.0.0",
+    "serverless-offline": "^14.0.0"
+  }
+}

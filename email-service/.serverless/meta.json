@@ -1,0 +1,63 @@
+{
+  "C:\\Users\\pihup\\Projects\\BanaoTechnologies_Assignment\\email-service\\serverless.yml": {
+    "versionFramework": "4.36.1",
+    "servicePath": "C:\\Users\\pihup\\Projects\\BanaoTechnologies_Assignment\\email-service\\serverless.yml",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "service": "email-service",
+      "provider": {
+        "name": "aws",
+        "runtime": "python3.11",
+        "region": "us-east-1",
+        "environment": {
+          "SMTP_HOST": "${env:SMTP_HOST, 'smtp.gmail.com'}",
+          "SMTP_PORT": "${env:SMTP_PORT, '587'}",
+          "SMTP_USER": "${env:SMTP_USER, ''}",
+          "SMTP_PASS": "${env:SMTP_PASS, ''}"
+        }
+      },
+      "plugins": [
+        "serverless-offline"
+      ],
+      "functions": {
+        "sendEmail": {
+          "handler": "handler.send_email",
+          "events": [
+            {
+              "http": {
+                "path": "email/send",
+                "method": "post",
+                "cors": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "python3.11",
+      "region": "us-east-1",
+      "environment": {
+        "SMTP_HOST": "${env:SMTP_HOST, 'smtp.gmail.com'}",
+        "SMTP_PORT": "${env:SMTP_PORT, '587'}",
+        "SMTP_USER": "${env:SMTP_USER, ''}",
+        "SMTP_PASS": "${env:SMTP_PASS, ''}"
+      }
+    },
+    "error": {
+      "message": "You must sign in or use a license key with Serverless Framework V.4 and later versions. Please use \"serverless login\".",
+      "stack": "Error: You must sign in or use a license key with Serverless Framework V.4 and later versions. Please use \"serverless login\".\n    at Authentication.getAuthenticatedData (file:///C:/Users/pihup/.serverless/releases/4.36.1/package/dist/sf-core.js:971:3023)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async Authentication.authenticate (file:///C:/Users/pihup/.serverless/releases/4.36.1/package/dist/sf-core.js:974:4133)\n    at async TraditionalRunner.resolveVariablesAndAuthenticate (file:///C:/Users/pihup/.serverless/releases/4.36.1/package/dist/sf-core.js:982:2394)\n    at async TraditionalRunner.run (file:///C:/Users/pihup/.serverless/releases/4.36.1/package/dist/sf-core.js:2426:26389)\n    at async route (file:///C:/Users/pihup/.serverless/releases/4.36.1/package/dist/sf-core.js:2597:2848)\n    at async Object.run (file:///C:/Users/pihup/.serverless/releases/4.36.1/package/dist/sf-core.js:2598:3886)\n    at async run2 (file:///C:/Users/pihup/.serverless/releases/4.36.1/package/dist/sf-core.js:2598:5040)"
+    },
+    "serviceRawFile": "service: email-service\n\nprovider:\n  name: aws\n  runtime: python3.11\n  region: us-east-1\n  environment:\n    SMTP_HOST: ${env:SMTP_HOST, 'smtp.gmail.com'}\n    SMTP_PORT: ${env:SMTP_PORT, '587'}\n    SMTP_USER: ${env:SMTP_USER, ''}\n    SMTP_PASS: ${env:SMTP_PASS, ''}\n\nplugins:\n  - serverless-offline\n\nfunctions:\n  sendEmail:\n    handler: handler.send_email\n    events:\n      - http:\n          path: email/send\n          method: post\n          cors: true\n",
+    "command": [
+      "offline"
+    ],
+    "options": {},
+    "serviceProviderAwsCfStackId": null,
+    "serviceProviderAwsCfStackCreated": null,
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": null,
+    "serviceProviderAwsCfStackOutputs": null
+  }
+}

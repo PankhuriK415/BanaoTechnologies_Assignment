@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mini HMS{% endblock %} | Hospital Management System</title>
+    <link rel="stylesheet" href="{% static 'hms_core/style.css' %}">
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <a href="{% url 'dashboard' %}" class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity" style="color: #3b82f6;"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Mini HMS
+            </a>
+            
+            <nav class="nav-links">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
+                    
+                    {% if user.is_doctor %}
+                        <a href="{% url 'create_slot_view' %}" class="nav-link">Add Availability</a>
+                        <span class="user-badge doctor">Dr. {{ user.last_name|default:user.username }}</span>
+                    {% elif user.is_patient %}
+                        <span class="user-badge patient">Patient: {{ user.first_name|default:user.username }}</span>
+                    {% endif %}
+                    
+                    <a href="{% url 'logout' %}" class="btn btn-secondary" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="nav-link">Login</a>
+                    <a href="{% url 'signup' %}" class="btn btn-primary" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Sign Up</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <main class="animate-fade-in">
+        <!-- Django Notification System Alerts -->
+        {% if messages %}
+            <div class="alert-messages">
+                {% for message in messages %}
+                    <div class="alert-item {% if message.tags %}{{ message.tags }}{% endif %}">
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Mini Hospital Management System (HMS). All Rights Reserved. top-1% Principal hiring submission evaluation.</p>
+    </footer>
+
+</body>
+</html>
